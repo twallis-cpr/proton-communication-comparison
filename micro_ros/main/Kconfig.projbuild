@@ -1,22 +1,7 @@
 menu "Proton Bench Configuration"
 
-    config ESP_WIFI_SSID
-        string "WiFi SSID"
-        default "myssid"
-        help
-            SSID of the access point to connect to.
-
-    config ESP_WIFI_PASSWORD
-        string "WiFi Password"
-        default "mypassword"
-        help
-            PSK for the access point.
-
-    config ESP_MAXIMUM_RETRY
-        int "Maximum retry"
-        default 5
-        help
-            Number of reconnect attempts before giving up.
+    # SSID / password / max retry are provided by the micro-ROS component under
+    # "micro-ROS Settings > WiFi Configuration" when MICRO_ROS_ESP_NETIF_WLAN=y.
 
     choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD
         prompt "Minimum Auth Mode"
