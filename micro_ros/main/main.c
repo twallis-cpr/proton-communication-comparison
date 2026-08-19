@@ -9,7 +9,7 @@ static const char *TAG = "app";
 
 void app_main(void)
 {
-    ESP_LOGI(TAG, "esp32_proton_bench booting");
+    ESP_LOGI(TAG, "esp32_uros_bench booting");
 
     esp_err_t err = wifi_sta_start_and_wait(portMAX_DELAY);
     if (err != ESP_OK) {
