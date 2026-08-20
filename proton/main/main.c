@@ -12,6 +12,13 @@
 #include "imu_gen_task.h"
 #include "wifi_sta.h"
 
+#include "proton/registry.h"
+#include "proton/node_manager.h"
+#include "proton/transport/udp4.h"
+#include "target_connections.h"
+#include "target_registry_ids.h"
+#include "target_registry_sizes.h"
+
 static char *TAG = "esp32_proton_bench";
 
 #define BENCH_STR_(x) #x

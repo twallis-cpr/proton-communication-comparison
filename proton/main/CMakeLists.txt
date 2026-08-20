@@ -4,6 +4,7 @@ idf_component_register(
     REQUIRES
         bench_common
         proton_core
+        proton_registry
         log
         esp_timer
 )
