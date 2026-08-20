@@ -107,6 +107,7 @@ the micro-ROS Python build dependencies (`catkin_pkg`,
    already sourced by the image entrypoint — and run:
 
     ```sh
+    . ${IDF_PATH}/export.sh
     cd micro_ros
     idf.py set-target esp32c6
     idf.py menuconfig     # Bench Configuration > WiFi + Transport Target
