@@ -12,22 +12,22 @@
 #include "nvs_flash.h"
 #include "sdkconfig.h"
 
-#if CONFIG_ESP_WIFI_AUTH_OPEN
-#define PROTON_WIFI_AUTH_MODE WIFI_AUTH_OPEN
-#elif CONFIG_ESP_WIFI_AUTH_WEP
-#define PROTON_WIFI_AUTH_MODE WIFI_AUTH_WEP
-#elif CONFIG_ESP_WIFI_AUTH_WPA_PSK
-#define PROTON_WIFI_AUTH_MODE WIFI_AUTH_WPA_PSK
-#elif CONFIG_ESP_WIFI_AUTH_WPA2_PSK
-#define PROTON_WIFI_AUTH_MODE WIFI_AUTH_WPA2_PSK
-#elif CONFIG_ESP_WIFI_AUTH_WPA_WPA2_PSK
-#define PROTON_WIFI_AUTH_MODE WIFI_AUTH_WPA_WPA2_PSK
-#elif CONFIG_ESP_WIFI_AUTH_WPA3_PSK
-#define PROTON_WIFI_AUTH_MODE WIFI_AUTH_WPA3_PSK
-#elif CONFIG_ESP_WIFI_AUTH_WPA2_WPA3_PSK
-#define PROTON_WIFI_AUTH_MODE WIFI_AUTH_WPA2_WPA3_PSK
+#if CONFIG_BENCH_WIFI_AUTH_OPEN
+#define BENCH_WIFI_AUTH_MODE WIFI_AUTH_OPEN
+#elif CONFIG_BENCH_WIFI_AUTH_WEP
+#define BENCH_WIFI_AUTH_MODE WIFI_AUTH_WEP
+#elif CONFIG_BENCH_WIFI_AUTH_WPA_PSK
+#define BENCH_WIFI_AUTH_MODE WIFI_AUTH_WPA_PSK
+#elif CONFIG_BENCH_WIFI_AUTH_WPA2_PSK
+#define BENCH_WIFI_AUTH_MODE WIFI_AUTH_WPA2_PSK
+#elif CONFIG_BENCH_WIFI_AUTH_WPA_WPA2_PSK
+#define BENCH_WIFI_AUTH_MODE WIFI_AUTH_WPA_WPA2_PSK
+#elif CONFIG_BENCH_WIFI_AUTH_WPA3_PSK
+#define BENCH_WIFI_AUTH_MODE WIFI_AUTH_WPA3_PSK
+#elif CONFIG_BENCH_WIFI_AUTH_WPA2_WPA3_PSK
+#define BENCH_WIFI_AUTH_MODE WIFI_AUTH_WPA2_WPA3_PSK
 #else
-#define PROTON_WIFI_AUTH_MODE WIFI_AUTH_WPA2_PSK
+#define BENCH_WIFI_AUTH_MODE WIFI_AUTH_WPA2_PSK
 #endif
 
 static const char *TAG = "wifi_sta";
@@ -44,11 +44,11 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        if (s_retry_num < CONFIG_ESP_MAXIMUM_RETRY) {
+        if (s_retry_num < CONFIG_BENCH_WIFI_MAX_RETRY) {
             esp_wifi_connect();
             s_retry_num++;
             ESP_LOGI(TAG, "retry to connect to the AP (%d/%d)",
-                     s_retry_num, CONFIG_ESP_MAXIMUM_RETRY);
+                     s_retry_num, CONFIG_BENCH_WIFI_MAX_RETRY);
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
             ESP_LOGW(TAG, "connect to the AP failed");
@@ -93,13 +93,13 @@ esp_err_t wifi_sta_start_and_wait(TickType_t timeout)
 
     wifi_config_t wifi_config = {
         .sta = {
-            .threshold.authmode = PROTON_WIFI_AUTH_MODE,
+            .threshold.authmode = BENCH_WIFI_AUTH_MODE,
             .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
         },
     };
-    strncpy((char *) wifi_config.sta.ssid, CONFIG_ESP_WIFI_SSID,
+    strncpy((char *) wifi_config.sta.ssid, CONFIG_BENCH_WIFI_SSID,
             sizeof(wifi_config.sta.ssid));
-    strncpy((char *) wifi_config.sta.password, CONFIG_ESP_WIFI_PASSWORD,
+    strncpy((char *) wifi_config.sta.password, CONFIG_BENCH_WIFI_PASSWORD,
             sizeof(wifi_config.sta.password));
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
@@ -113,11 +113,11 @@ esp_err_t wifi_sta_start_and_wait(TickType_t timeout)
                                            pdFALSE, pdFALSE, timeout);
 
     if (bits & WIFI_CONNECTED_BIT) {
-        ESP_LOGI(TAG, "connected to ap SSID:%s", CONFIG_ESP_WIFI_SSID);
+        ESP_LOGI(TAG, "connected to ap SSID:%s", CONFIG_BENCH_WIFI_SSID);
         return ESP_OK;
     }
     if (bits & WIFI_FAIL_BIT) {
-        ESP_LOGW(TAG, "failed to connect to SSID:%s", CONFIG_ESP_WIFI_SSID);
+        ESP_LOGW(TAG, "failed to connect to SSID:%s", CONFIG_BENCH_WIFI_SSID);
         return ESP_FAIL;
     }
     ESP_LOGW(TAG, "wifi connect wait timed out");

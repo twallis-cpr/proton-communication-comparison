@@ -1,0 +1,61 @@
+menu "Bench Configuration"
+
+    menu "WiFi Configuration"
+
+        config BENCH_WIFI_SSID
+            string "WiFi SSID"
+            default "myssid"
+            help
+                SSID of the access point to connect to.
+
+        config BENCH_WIFI_PASSWORD
+            string "WiFi Password"
+            default "mypassword"
+            help
+                PSK for the access point.
+
+        config BENCH_WIFI_MAX_RETRY
+            int "Maximum retry"
+            default 5
+            help
+                Number of reconnect attempts before giving up.
+
+        choice BENCH_WIFI_AUTH_MODE
+            prompt "Minimum Auth Mode"
+            default BENCH_WIFI_AUTH_WPA2_PSK
+            help
+                Minimum authentication mode accepted by the STA.
+
+            config BENCH_WIFI_AUTH_OPEN
+                bool "OPEN"
+            config BENCH_WIFI_AUTH_WEP
+                bool "WEP"
+            config BENCH_WIFI_AUTH_WPA_PSK
+                bool "WPA PSK"
+            config BENCH_WIFI_AUTH_WPA2_PSK
+                bool "WPA2 PSK"
+            config BENCH_WIFI_AUTH_WPA_WPA2_PSK
+                bool "WPA/WPA2 PSK"
+            config BENCH_WIFI_AUTH_WPA3_PSK
+                bool "WPA3 PSK"
+            config BENCH_WIFI_AUTH_WPA2_WPA3_PSK
+                bool "WPA2/WPA3 PSK"
+        endchoice
+
+    endmenu
+
+    menu "Transport Target"
+
+        config BENCH_TARGET_IPV4
+            string "Destination IPv4 address"
+            default "192.168.1.100"
+            help
+                Address of the receiving PC (micro-ROS agent host or Proton peer).
+
+        config BENCH_TARGET_PORT
+            int "Destination UDP port"
+            default 8888
+
+    endmenu
+
+endmenu

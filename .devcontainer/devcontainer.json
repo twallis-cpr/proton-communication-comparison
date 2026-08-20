@@ -1,0 +1,42 @@
+{
+    "name": "esp32-proton-bench",
+    "image": "espressif/idf:release-v6.0",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,consistency=cached",
+    "remoteUser": "root",
+
+    // Devices are host-Linux specific. Comment out any that aren't plugged in
+    // when the container starts, otherwise container start will fail.
+    "runArgs": [
+        "--device=/dev/ttyUSB0"
+    ],
+
+    "containerEnv": {
+        "IDF_PATH": "/opt/esp/idf"
+    },
+
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "espressif.esp-idf-extension",
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.profiles.linux": {
+                    "bash": {
+                        "path": "/bin/bash",
+                        "args": ["-l"]
+                    }
+                },
+                "idf.espIdfPath": "/opt/esp/idf",
+                "idf.toolsPath": "/opt/esp",
+                "idf.pythonInstallPath": "/opt/esp/python_env/idf6.0_py3.12_env/bin/python",
+                "idf.gitPath": "/usr/bin/git"
+            }
+        }
+    }
+}
