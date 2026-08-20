@@ -4,5 +4,6 @@ idf_component_register(
     REQUIRES
         bench_common
         log
+        esp_timer
         micro_ros_espidf_component
 )

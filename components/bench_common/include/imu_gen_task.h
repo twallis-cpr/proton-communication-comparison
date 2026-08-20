@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-void rng_task_start(void);
+void imu_gen_task_start(void *arg);
 
 #ifdef __cplusplus
 }

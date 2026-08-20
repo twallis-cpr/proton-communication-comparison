@@ -1,7 +1,7 @@
 idf_component_register(
     SRCS
         "wifi_sta.c"
-        "rng_task.c"
+        "imu_gen_task.c"
     INCLUDE_DIRS "include"
     REQUIRES
         nvs_flash
