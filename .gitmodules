@@ -5,3 +5,4 @@
 [submodule "proton/components/proton_core/proton"]
 	path = proton/components/proton_core/proton
 	url = https://github.com/clearpathrobotics/proton.git
+    branch = 2.0.0-beta6
