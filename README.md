@@ -127,8 +127,20 @@ idf.py build
 idf.py flash
 ```
 
-## Reading data with uros agent
+### Reading data with uros agent
 
 ```sh
 docker run -it --rm --net=host microros/micro-ros-agent:rolling udp4 --port 8888 -v6
 ```
+
+## Proton
+
+## Component size comparison
+
+To read how large each component is, run
+
+```sh
+idf.py size-components
+```
+
+and search for the component you want to see (libmicroros.a, libproton.a, etc)

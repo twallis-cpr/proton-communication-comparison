@@ -145,7 +145,7 @@ void app_main(void)
 
 		imu_gen_task_start((void*)imu_queue);
 	} else {
-		ESP_LOGE(TAG, "IMU queue is null");
+		ESP_LOGE(TAG, "IMU queue is null, time to explode!");
 		ESP_ERROR_CHECK(-1);
 	}
 }

@@ -2,3 +2,6 @@
 	path = micro_ros/components/micro_ros_espidf_component
 	url = https://github.com/micro-ROS/micro_ros_espidf_component.git
 	branch = rolling
+[submodule "proton/components/proton_core/proton"]
+	path = proton/components/proton_core/proton
+	url = https://github.com/clearpathrobotics/proton.git

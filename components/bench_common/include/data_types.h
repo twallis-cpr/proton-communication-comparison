@@ -18,16 +18,6 @@ typedef struct ImuData {
     float linear_accel_z;
 } ImuData_t;
 
-/**
- * Represents diff drive odometry
- */
-// typedef struct WheelOdom {
-//     int32_t l_wheel_pos;
-//     int32_t l_wheel_vel;
-//     int32_t r_wheel_pos;
-//     int32_t r_wheel_vel;
-// } WheelOdom_t;
-
 #ifdef __cplusplus
 }
 #endif
