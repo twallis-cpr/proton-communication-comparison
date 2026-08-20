@@ -126,3 +126,9 @@ idf.py menuconfig # to set your wifi credentials (see above)
 idf.py build
 idf.py flash
 ```
+
+## Reading data with uros agent
+
+```sh
+docker run -it --rm --net=host microros/micro-ros-agent:rolling udp4 --port 8888 -v6
+```
