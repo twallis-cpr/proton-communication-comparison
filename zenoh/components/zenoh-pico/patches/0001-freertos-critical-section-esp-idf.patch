@@ -1,0 +1,37 @@
+diff --git a/src/system/freertos/system.c b/src/system/freertos/system.c
+index 499a6630..aacbc147 100644
+--- a/src/system/freertos/system.c
++++ b/src/system/freertos/system.c
+@@ -146,12 +146,15 @@ z_result_t _z_task_init(_z_task_t *task, z_task_attr_t *attr, void *(*fun)(void
+ z_result_t _z_task_join(_z_task_t *task) {
+     xEventGroupWaitBits(task->join_event, 1, pdFALSE, pdFALSE, portMAX_DELAY);
+ 
+-    taskENTER_CRITICAL();
++    // ESP-IDF's FreeRTOS variant requires a portMUX argument to
++    // task{ENTER,EXIT}_CRITICAL. Suspending the scheduler achieves the same
++    // mutual exclusion here and is portable across FreeRTOS ports.
++    vTaskSuspendAll();
+     if (task->handle != NULL) {
+         vTaskDelete(task->handle);
+         task->handle = NULL;
+     }
+-    taskEXIT_CRITICAL();
++    xTaskResumeAll();
+ 
+     return _Z_RES_OK;
+ }
+@@ -162,12 +165,12 @@ z_result_t _z_task_detach(_z_task_t *task) {
+ }
+ 
+ z_result_t _z_task_cancel(_z_task_t *task) {
+-    taskENTER_CRITICAL();
++    vTaskSuspendAll();
+     if (task->handle != NULL) {
+         vTaskDelete(task->handle);
+         task->handle = NULL;
+     }
+-    taskEXIT_CRITICAL();
++    xTaskResumeAll();
+ 
+     xEventGroupSetBits(task->join_event, 1);
+ 

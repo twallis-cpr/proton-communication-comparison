@@ -7,3 +7,5 @@ idf_component_register(
         esp_timer
         zenoh-pico
 )
+
+add_definitions(-DZENOHPICO_PLATFORM_ESP32)
