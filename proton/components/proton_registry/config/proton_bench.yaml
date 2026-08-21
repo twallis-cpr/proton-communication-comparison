@@ -19,19 +19,23 @@ connections:
     second: {node: pc, id: 0}
 
 signals:
-  - {name: angular_x, id: 0, type: float}
-  - {name: angular_y, id: 1, type: float}
-  - {name: angular_z, id: 2, type: float}
-  - {name: linear_x, id: 3, type: float}
-  - {name: linear_y, id: 4, type: float}
-  - {name: linear_z, id: 5, type: float}
+  - {name: angular_x, id: 0, type: double}
+  - {name: angular_y, id: 1, type: double}
+  - {name: angular_z, id: 2, type: double}
+  - {name: linear_x, id: 3, type: double}
+  - {name: linear_y, id: 4, type: double}
+  - {name: linear_z, id: 5, type: double}
   - {name: ts_sec, id: 6, type: int64}
   - {name: ts_nsec, id: 7, type: int64}
   - {name: frame_id, id: 8, type: string, value: "esp32_proton_bench"}
+
+  - {name: ang_vel_covar, id: 9, type: double}
+  - {name: linear_accel_covar, id: 10, type: double}
 
 bundles:
   - name: imu
     id: 0x100
     producers: [mcu]
     consumers: [pc]
-    signals: [0, 1, 2, 3, 4, 5, 6, 7]
+    signals: [0, 1, 2, 3, 4, 5, 6, 7, 9, 10]
+    period_ms: 10

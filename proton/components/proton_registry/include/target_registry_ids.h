@@ -47,6 +47,10 @@ extern "C" {
 
 #define PROTON_SIGNAL_TS_NSEC_ID 7
 
+#define PROTON_SIGNAL_ANG_VEL_COVAR_ID 9
+
+#define PROTON_SIGNAL_LINEAR_ACCEL_COVAR_ID 10
+
 
 #ifdef __cplusplus
 }

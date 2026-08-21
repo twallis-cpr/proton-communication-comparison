@@ -46,7 +46,15 @@
 
 
 
+
+
+
+
 // Buffers to act as a decode space for repeated-type signals
+
+
+
+
 
 
 
@@ -69,12 +77,12 @@ signal_desc_t g_signal_registry[PROTON_SIGNAL_REGISTRY_SIZE] = {
 
   {
     .id = PROTON_SIGNAL_ANGULAR_X_ID,
-    .type = PROTON_FLOAT,
+    .type = PROTON_DOUBLE,
     .signal.id = PROTON_SIGNAL_ANGULAR_X_ID,
-    .signal.which_signal = proton_Signal_float_value_tag,
+    .signal.which_signal = proton_Signal_double_value_tag,
     
-    .signal.signal.float_value = 0.0f,
-    .value_size = sizeof(float),
+    .signal.signal.double_value = 0.0f,
+    .value_size = sizeof(double),
     .capacity = 0,
     .signal_decode_buffer = {
       .data = NULL,
@@ -85,12 +93,12 @@ signal_desc_t g_signal_registry[PROTON_SIGNAL_REGISTRY_SIZE] = {
 
   {
     .id = PROTON_SIGNAL_ANGULAR_Y_ID,
-    .type = PROTON_FLOAT,
+    .type = PROTON_DOUBLE,
     .signal.id = PROTON_SIGNAL_ANGULAR_Y_ID,
-    .signal.which_signal = proton_Signal_float_value_tag,
+    .signal.which_signal = proton_Signal_double_value_tag,
     
-    .signal.signal.float_value = 0.0f,
-    .value_size = sizeof(float),
+    .signal.signal.double_value = 0.0f,
+    .value_size = sizeof(double),
     .capacity = 0,
     .signal_decode_buffer = {
       .data = NULL,
@@ -101,12 +109,12 @@ signal_desc_t g_signal_registry[PROTON_SIGNAL_REGISTRY_SIZE] = {
 
   {
     .id = PROTON_SIGNAL_ANGULAR_Z_ID,
-    .type = PROTON_FLOAT,
+    .type = PROTON_DOUBLE,
     .signal.id = PROTON_SIGNAL_ANGULAR_Z_ID,
-    .signal.which_signal = proton_Signal_float_value_tag,
+    .signal.which_signal = proton_Signal_double_value_tag,
     
-    .signal.signal.float_value = 0.0f,
-    .value_size = sizeof(float),
+    .signal.signal.double_value = 0.0f,
+    .value_size = sizeof(double),
     .capacity = 0,
     .signal_decode_buffer = {
       .data = NULL,
@@ -117,12 +125,12 @@ signal_desc_t g_signal_registry[PROTON_SIGNAL_REGISTRY_SIZE] = {
 
   {
     .id = PROTON_SIGNAL_LINEAR_X_ID,
-    .type = PROTON_FLOAT,
+    .type = PROTON_DOUBLE,
     .signal.id = PROTON_SIGNAL_LINEAR_X_ID,
-    .signal.which_signal = proton_Signal_float_value_tag,
+    .signal.which_signal = proton_Signal_double_value_tag,
     
-    .signal.signal.float_value = 0.0f,
-    .value_size = sizeof(float),
+    .signal.signal.double_value = 0.0f,
+    .value_size = sizeof(double),
     .capacity = 0,
     .signal_decode_buffer = {
       .data = NULL,
@@ -133,12 +141,12 @@ signal_desc_t g_signal_registry[PROTON_SIGNAL_REGISTRY_SIZE] = {
 
   {
     .id = PROTON_SIGNAL_LINEAR_Y_ID,
-    .type = PROTON_FLOAT,
+    .type = PROTON_DOUBLE,
     .signal.id = PROTON_SIGNAL_LINEAR_Y_ID,
-    .signal.which_signal = proton_Signal_float_value_tag,
+    .signal.which_signal = proton_Signal_double_value_tag,
     
-    .signal.signal.float_value = 0.0f,
-    .value_size = sizeof(float),
+    .signal.signal.double_value = 0.0f,
+    .value_size = sizeof(double),
     .capacity = 0,
     .signal_decode_buffer = {
       .data = NULL,
@@ -149,12 +157,12 @@ signal_desc_t g_signal_registry[PROTON_SIGNAL_REGISTRY_SIZE] = {
 
   {
     .id = PROTON_SIGNAL_LINEAR_Z_ID,
-    .type = PROTON_FLOAT,
+    .type = PROTON_DOUBLE,
     .signal.id = PROTON_SIGNAL_LINEAR_Z_ID,
-    .signal.which_signal = proton_Signal_float_value_tag,
+    .signal.which_signal = proton_Signal_double_value_tag,
     
-    .signal.signal.float_value = 0.0f,
-    .value_size = sizeof(float),
+    .signal.signal.double_value = 0.0f,
+    .value_size = sizeof(double),
     .capacity = 0,
     .signal_decode_buffer = {
       .data = NULL,
@@ -195,6 +203,38 @@ signal_desc_t g_signal_registry[PROTON_SIGNAL_REGISTRY_SIZE] = {
     
   },
 
+  {
+    .id = PROTON_SIGNAL_ANG_VEL_COVAR_ID,
+    .type = PROTON_DOUBLE,
+    .signal.id = PROTON_SIGNAL_ANG_VEL_COVAR_ID,
+    .signal.which_signal = proton_Signal_double_value_tag,
+    
+    .signal.signal.double_value = 0.0f,
+    .value_size = sizeof(double),
+    .capacity = 0,
+    .signal_decode_buffer = {
+      .data = NULL,
+      .len = 0,
+    },
+    
+  },
+
+  {
+    .id = PROTON_SIGNAL_LINEAR_ACCEL_COVAR_ID,
+    .type = PROTON_DOUBLE,
+    .signal.id = PROTON_SIGNAL_LINEAR_ACCEL_COVAR_ID,
+    .signal.which_signal = proton_Signal_double_value_tag,
+    
+    .signal.signal.double_value = 0.0f,
+    .value_size = sizeof(double),
+    .capacity = 0,
+    .signal_decode_buffer = {
+      .data = NULL,
+      .len = 0,
+    },
+    
+  },
+
 };
 
 bundle_desc_t g_bundle_table[PROTON_BUNDLE_REGISTRY_SIZE] = {
@@ -211,11 +251,11 @@ bundle_desc_t g_bundle_table[PROTON_BUNDLE_REGISTRY_SIZE] = {
       .count = 1
     },
     .signal_ids = {
-      .ids = (const uint32_t[]){ 0, 1, 2, 3, 4, 5, 6, 7 },
-      .count = 8
+      .ids = (const uint32_t[]){ 0, 1, 2, 3, 4, 5, 6, 7, 9, 10 },
+      .count = 10
     },
     .last_send_ms = 0,
-    .period_ms = 0,
+    .period_ms = 10,
     .send_now = false,
     .callback = { NULL, NULL },
   },
@@ -232,7 +272,7 @@ bundle_desc_t g_bundle_table[PROTON_BUNDLE_REGISTRY_SIZE] = {
 
 
 // Shared encode/decode buffer sized to largest bundle
-static proton_Signal g_encode_decode_buffer[8] = {};
+static proton_Signal g_encode_decode_buffer[10] = {};
 
 // Scratch buffer used as a temporary decode target for string/bytes signals
 static uint8_t g_signal_decode_scratch[PROTON_SCRATCH_BUFFER_SIZE];
@@ -241,7 +281,7 @@ proton_registry_t g_proton_registry = {
   .bundle_table = g_bundle_table,
   .bundle_count = PROTON_BUNDLE_REGISTRY_SIZE,
   .encode_decode_buffer = g_encode_decode_buffer,
-  .encode_decode_buffer_count = 8,
+  .encode_decode_buffer_count = 10,
   .signal_registry = g_signal_registry,
   .signal_count = PROTON_SIGNAL_REGISTRY_SIZE,
   .signal_scratch_buffer = g_signal_decode_scratch,

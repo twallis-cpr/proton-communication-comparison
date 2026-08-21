@@ -43,10 +43,16 @@ void timer_callback(rcl_timer_t * timer, int64_t last_call_time, uintptr_t arg)
 	if (timer != NULL && imu_queue != NULL) {
 		ImuData_t imu_data;
 		if (xQueueReceive(imu_queue, &imu_data, 0) == pdPASS) {
+            msg.angular_velocity_covariance[0] = imu_data.ang_vel_covar;
+            msg.angular_velocity_covariance[4] = imu_data.ang_vel_covar;
+            msg.angular_velocity_covariance[8] = imu_data.ang_vel_covar;
 			msg.angular_velocity.x = imu_data.angular_vel_x;
 			msg.angular_velocity.y = imu_data.angular_vel_y;
 			msg.angular_velocity.z = imu_data.angular_vel_z;
 
+            msg.linear_acceleration_covariance[0] = imu_data.linear_accel_covar;
+            msg.linear_acceleration_covariance[4] = imu_data.linear_accel_covar;
+            msg.linear_acceleration_covariance[8] = imu_data.linear_accel_covar;
 			msg.linear_acceleration.x = imu_data.linear_accel_x;
 			msg.linear_acceleration.y = imu_data.linear_accel_y;
 			msg.linear_acceleration.z = imu_data.linear_accel_z;

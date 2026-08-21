@@ -14,6 +14,8 @@
 #define IMU_GEN_TASK_STACK_SIZE 3072
 #define IMU_GEN_TASK_PERIOD_MS  10
 
+// static const char *TAG = "imu_gen_task";
+
 static void imu_gen_task(void *arg)
 {
     QueueHandle_t imu_queue = (QueueHandle_t)arg;
@@ -34,16 +36,18 @@ static void imu_gen_task(void *arg)
 
         sine_input += sine_step;
 
+        imu.ang_vel_covar = axes[0];
         imu.angular_vel_x = axes[0];
         imu.angular_vel_y = axes[1];
         imu.angular_vel_z = axes[2];
+
+        imu.linear_accel_covar = axes[3];
         imu.linear_accel_x = axes[3];
         imu.linear_accel_y = axes[4];
         imu.linear_accel_z = axes[5];
 
         xQueueSend(imu_queue, (void*)&imu, 0);
 
-        // uint32_t val = esp_random();
         vTaskDelayUntil(&last_wake, period);
     }
 }
