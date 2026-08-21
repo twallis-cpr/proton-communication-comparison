@@ -66,7 +66,7 @@ void proton_task(void *arg)
             &out_len,
             dest_peers,
             1,
-            &num_selected_peers;
+            &num_selected_peers
         );
 
         if (status == PROTON_OK) {
@@ -83,7 +83,7 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "esp32_proton_bench booting");
 
-    esp_err_t err = wifi_sta_start_and_wait(portMAX_DELAY);
+    esp_err_t err = wifi_sta_start_and_wait(portMAX_DELAY, PROTON_NODE_MCU_ENDPOINT_0_TRANSPORT_IP);
     if (err != ESP_OK) {
         ESP_LOGW(TAG, "wifi connect failed (%s), continuing without network",
                  esp_err_to_name(err));

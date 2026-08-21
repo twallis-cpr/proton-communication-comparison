@@ -4,14 +4,14 @@ nodes:
     endpoints:
       - id: 0
         type: udp4
-        ip: 192.168.1.100
+        ip: 10.10.10.101
         port: 11416
   - name: pc
     id: 1
     endpoints:
       - id: 0
         type: udp4
-        ip: 192.168.1.169
+        ip: 10.10.10.100
         port: 11416
 
 connections:
@@ -34,4 +34,4 @@ bundles:
     id: 0x100
     producers: [mcu]
     consumers: [pc]
-    signals: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    signals: [0, 1, 2, 3, 4, 5, 6, 7]

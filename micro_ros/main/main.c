@@ -126,7 +126,7 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "esp32_uros_bench booting");
 
-    esp_err_t err = wifi_sta_start_and_wait(portMAX_DELAY);
+    esp_err_t err = wifi_sta_start_and_wait(portMAX_DELAY, NULL);
     if (err != ESP_OK) {
         ESP_LOGW(TAG, "wifi connect failed (%s), continuing without network",
                  esp_err_to_name(err));

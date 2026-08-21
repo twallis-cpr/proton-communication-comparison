@@ -1,0 +1,14 @@
+menu "Proton Example Configuration"
+    config PROTON_TASK_STACK
+        int "Proton task stack"
+        default 3072
+        help
+            Stack size in bytes of the proton task
+        
+    config PROTON_TASK_PRIO
+        int "Priority of the proton task"
+        default 5
+        help
+            Priority of proton task higher value means higher priority
+
+endmenu

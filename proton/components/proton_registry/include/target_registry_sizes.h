@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-# define PROTON_SIGNAL_REGISTRY_SIZE 9
+# define PROTON_SIGNAL_REGISTRY_SIZE 8
 # define PROTON_BUNDLE_REGISTRY_SIZE 1
 # define PROTON_NODE_REGISTRY_SIZE 2
 
@@ -44,8 +44,6 @@ extern "C" {
 #define PROTON_SIGNAL_TS_SEC_CAPACITY 0
 
 #define PROTON_SIGNAL_TS_NSEC_CAPACITY 0
-
-#define PROTON_SIGNAL_FRAME_ID_CAPACITY 19
 
 
 #ifdef __cplusplus

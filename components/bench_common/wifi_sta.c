@@ -61,7 +61,7 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     }
 }
 
-esp_err_t wifi_sta_start_and_wait(TickType_t timeout)
+esp_err_t wifi_sta_start_and_wait(TickType_t timeout, const char * static_ip)
 {
     esp_err_t nvs_err = nvs_flash_init();
     if (nvs_err == ESP_ERR_NVS_NO_FREE_PAGES || nvs_err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -77,7 +77,23 @@ esp_err_t wifi_sta_start_and_wait(TickType_t timeout)
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_create_default_wifi_sta();
+    esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();
+
+    if (static_ip != NULL && static_ip[0] != '\0') {
+        esp_netif_ip_info_t ip_info = {0};
+        if (esp_netif_str_to_ip4(static_ip, &ip_info.ip) != ESP_OK) {
+            ESP_LOGE(TAG, "invalid static IP '%s'; falling back to DHCP", static_ip);
+        } else {
+            // /24 same-subnet, no default gateway (bench sends UDP to a peer on the same LAN).
+            esp_netif_str_to_ip4("255.255.255.0", &ip_info.netmask);
+            esp_err_t stop_err = esp_netif_dhcpc_stop(sta_netif);
+            if (stop_err != ESP_OK && stop_err != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED) {
+                ESP_LOGE(TAG, "dhcpc_stop failed: %s", esp_err_to_name(stop_err));
+            }
+            ESP_ERROR_CHECK(esp_netif_set_ip_info(sta_netif, &ip_info));
+            ESP_LOGI(TAG, "using static IP %s/24 (no gateway)", static_ip);
+        }
+    }
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));

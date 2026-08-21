@@ -47,8 +47,6 @@ extern "C" {
 
 #define PROTON_SIGNAL_TS_NSEC_ID 7
 
-#define PROTON_SIGNAL_FRAME_ID_ID 8
-
 
 #ifdef __cplusplus
 }
