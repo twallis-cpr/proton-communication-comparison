@@ -1,0 +1,7 @@
+docker run --rm -it -e RUST_LOG=debug --init --network=host -p 10.10.10.100:7447:7447/tcp -p 10.10.10.100:8000:8000/tcp -v $(pwd)/zenoh-docker:/root/.zenoh eclipse/zenoh
+
+run z_sub example in another terminal
+
+cargo run --example z_sub -- -k esp/imu
+
+

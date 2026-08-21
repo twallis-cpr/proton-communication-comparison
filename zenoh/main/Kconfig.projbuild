@@ -1,7 +1,7 @@
 menu "Zenoh Example Configuration"
     config ZENOH_TASK_STACK
         int "Zenoh task stack"
-        default 3072
+        default 8192
         help
             Stack size in bytes of the zenoh task
         

@@ -62,7 +62,7 @@ set(BATCH_MULTICAST_SIZE          2048)
 set(Z_CONFIG_SOCKET_TIMEOUT       5000)
 set(Z_TRANSPORT_LEASE             10000)
 set(Z_TRANSPORT_LEASE_EXPIRE_FACTOR 3)
-set(Z_RUNTIME_MAX_TASKS           64)
+set(Z_RUNTIME_MAX_TASKS           16)
 set(Z_RUNTIME_IDLE_READ_TASK_SLEEP 0)
 set(Z_TRANSPORT_ACCEPT_TIMEOUT    1000)
 set(Z_TRANSPORT_CONNECT_TIMEOUT   10000)
@@ -128,6 +128,7 @@ file(GLOB_RECURSE PICO_SRCS_COMMON
     "${ZENOH_PICO_DIR}/src/link/*.c"
     "${ZENOH_PICO_DIR}/src/net/*.c"
     "${ZENOH_PICO_DIR}/src/protocol/*.c"
+    "${ZENOH_PICO_DIR}/src/runtime/*.c"
     "${ZENOH_PICO_DIR}/src/session/*.c"
     "${ZENOH_PICO_DIR}/src/transport/*.c"
     "${ZENOH_PICO_DIR}/src/utils/*.c"
@@ -175,4 +176,5 @@ target_compile_options(${COMPONENT_LIB} PRIVATE
     -Wno-error=unused-but-set-parameter
     -Wno-error=unused-but-set-variable
     -Wno-error=incompatible-pointer-types
+    -Wno-error=maybe-uninitialized
 )
