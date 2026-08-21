@@ -5,4 +5,5 @@ idf_component_register(
         bench_common
         log
         esp_timer
+        zenoh-pico
 )
