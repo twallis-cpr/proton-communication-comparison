@@ -6,3 +6,6 @@
 	path = proton/components/proton_core/proton
 	url = https://github.com/clearpathrobotics/proton.git
     branch = 2.0.0-beta6
+[submodule "zenoh/components/zenoh_pico/zenoh-pico"]
+	path = zenoh/components/zenoh_pico/zenoh-pico
+	url = https://github.com/eclipse-zenoh/zenoh-pico.git
