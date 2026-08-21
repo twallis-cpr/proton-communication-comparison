@@ -35,6 +35,8 @@ sensor_msgs__msg__Imu msg;
 
 QueueHandle_t imu_queue = NULL;
 
+uint32_t imu_seq = 0;
+
 void timer_callback(rcl_timer_t * timer, int64_t last_call_time, uintptr_t arg)
 {
 	RCLC_UNUSED(last_call_time);
@@ -61,7 +63,8 @@ void timer_callback(rcl_timer_t * timer, int64_t last_call_time, uintptr_t arg)
 			msg.header.stamp.sec = uptime_us / 1000000LL;
 			msg.header.stamp.nanosec = (uptime_us % 1000000LL) * 1000LL;
 		}
-		ESP_LOGI(TAG, "Publishing...");
+		ESP_LOGI(TAG, "Publishing %ld", imu_seq);
+        imu_seq++;
 		RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
 	}
 }
@@ -132,7 +135,7 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "esp32_uros_bench booting");
 
-    esp_err_t err = wifi_sta_start_and_wait(portMAX_DELAY, NULL);
+    esp_err_t err = wifi_sta_start_and_wait(portMAX_DELAY, "10.10.10.101");
     if (err != ESP_OK) {
         ESP_LOGW(TAG, "wifi connect failed (%s), continuing without network",
                  esp_err_to_name(err));
