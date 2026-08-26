@@ -40,15 +40,15 @@
 
 ## Transmit-side components
 
-| | proton | micro-ROS | Notes | 
+| | proton | micro-ROS | zenoh-pico | Notes |
 |---|---|---|---|
-| Component source | git submodule at `proton/components/proton_core/proton` | git submodule at `micro_ros/components/micro_ros_espidf_component` | |
-| Version | tag `2.0.0-beta6` | `rolling` branch, currently `6.0.0-25-geecadcf` ||
-| Middleware | proton static registry (generated from YAML) | eProsima Micro XRCE-DDS ||
-| Transport | UDP4 via lwIP `sendto`, non-blocking | UDP4 via micro-ROS `rmw_uros_options_set_udp_address` ||
-| Bench task stack | 3072 B (`CONFIG_PROTON_TASK_STACK`) | 16000 B (`CONFIG_MICRO_ROS_APP_STACK`) | 16kB for micro-ROS was the default according to the upstream submodule |
-| Bench task priority | 5 | 5 | | 
-| Payload cadence | 10 ms period (100 Hz) | rclc timer-driven (matches proton period) | |
+| Component source | git submodule at `proton/components/proton_core/proton` | git submodule at `micro_ros/components/micro_ros_espidf_component` | git submodule at `zenoh/components/zenoh-pico/zenoh-pico` | patch applied |
+| Version | tag `2.0.0-beta6` | `rolling` branch, currently `6.0.0-25-geecadcf` | `main` branch, currently `e621319b97`||
+| Middleware | proton static registry (generated from YAML) | eProsima Micro XRCE-DDS | zenoh ||
+| Transport | UDP4 via lwIP `sendto`, non-blocking | UDP4 via micro-ROS `rmw_uros_options_set_udp_address` | UDP4 via zenoh `z_put` ||
+| Bench task stack | 3072 B (`CONFIG_PROTON_TASK_STACK`) | 16000 B (`CONFIG_MICRO_ROS_APP_STACK`) | 16kB for micro-ROS was the default according to the upstream submodule ||
+| Bench task priority | 5 | 5 | 5 ||
+| Payload cadence | 10 ms period (100 Hz) | rclc timer-driven (matches proton period) | 10ms period (100Hz) ||
 
 ## Summary
 
@@ -56,9 +56,15 @@
 
 | Metric | micro-ROS | proton | Delta |
 |---|---|---|---|
-| App-partition image (.bin) |944,992 B | 836,416 B | −108,576 B (−11.5%) |
-| Free in 1 MB factory partition |10% | 20% | +10 pp |
+| App-partition image (.bin) | 944,992 B | 836,416 B | −108,576 B (−11.5%) |
+| Free in 1 MB factory partition | 10% | 20% | +10 pp |
 | Application-stack code (own libs) | 107,818 B | 6,156 B | −101,662 B (~17.5× smaller) |
+
+| Metric | zenoh-pico | proton | Delta |
+|---|---|---|---|
+| App-partition image (.bin) | 934,208 B | 836,416 B | −97,792 B (−10%) |
+| Free in 1 MB factory partition | 11% | 20% | +9 pp |
+| Application-stack code (own libs) | 73,868 B | 6,156 B | -67,712 B (~12× smaller) |
 
 ### Application-stack contribution
 
@@ -67,6 +73,7 @@
 | libmicroros.a | 107,818 B | rcl + rclc + rmw_microxrcedds + tinycbor + generated msg support |
 | libproton_core.a | 4,724 B | proton runtime (encode/decode, node manager, transports) |
 libproton_registry.a | 1,432 B | generated static registry (signals + bundles + node) |
+| libzenoh-pico.a | 73,868 B | zenoh runtime + message support |
 
 ### RAM
 
@@ -75,8 +82,11 @@ libproton_registry.a | 1,432 B | generated static registry (signals + bundles + 
 | libmicroros.a | 30,523 B (DIRAM) | Session tables, executor queues, publisher/subscriber slots |
 | libproton_core.a | 0 B | All state lives in the registry / node structs owned by the app |
 | libproton_registry.a | 1,372 B (DIRAM) | Signal + bundle state buffers |
+| libzenoh-pico.a | 24 B (DIRAM) | Vast majority of memory is dynamically allocated |
 
 micro-ROS costs ~30 KB of static RAM on top of stack usage; proton's static registry is ~1.4 KB. Actual heap use at runtime isn't captured in size-components, but micro-ROS's rclc_support_init + executor add several more KB of heap under middleware defaults. Proton has no heap allocation.
+
+zenoh-pico is a smiliar story to micro-ROS. It uses mostly dynamically-allocated memory, leading its memory footprint at boot to be quite low, but its actual memory usage at runtime is highly variable and subject to the application at hand.
 
 ## Caveats
 
@@ -112,6 +122,8 @@ Based on exported data, micro-ROS uses an average of 363166 bits/s, vs proton's 
 This is largely chalked up to the fact that proton only sends as much data as it needs to. micro-ROS uses the ROS standard serialization (effectively none) and ends up transmitting the entire sensor_msgs/msg/Imu message, which is 340 bytes long. That includes three 9-element covariances, and the unused 4-element orientation message.
 
 proton inherits protobuf's varint encoding, meaning that data is compressed slightly, and only sends the gyro, accel, and a single value for their covariances, which can be used as a coefficient for the covariance matrix in the ROS bridging layer.
+
+## zenoh-pico
 
 ## EtherNet/IP
 
