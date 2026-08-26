@@ -1,35 +1,6 @@
-# Firmware size comparison — micro-ROS vs. proton
+# Size Comparison
 
-## Overview
-
-To compare size and memory resource usage of micro-ROS vs. Clearpath proton.
-
-The bench firmware connects to a Wi-Fi network at a static IP, and transmits simulated IMU data over its respective communication protocol. The IMU data represents the kind of data found on a commodity IMU: angular velocity and linear acceleration over 3 axes each. Also simulated is are the covariances for these two measurements. For simulation purposes, the data on each axis is different offsets of a sine-wave, with the covariance matching the X axis of the respective sensor.
-
-Simulated IMU data is generated in a dedicated task (`imu_gen_task`) and transmitted over a FreeRTOS queue at 100Hz using a neutral datatype struct (`ImuData_t`). Each communication protocol runs in its own task at 100Hz, pulling data from the queue, copying the data into its respective message type, and transmits it to a fixed IP address on the same network.
-
-## Test Setup
-
-### Hardware
-  - Board: ESP32-C6-DevKitM-1
-  - Host PC: Ubuntu 24.04, ROS 2 Jazzy
-
-### Networking
-  - ESP32 (wifi): a dumpy router from home, 300Mbps Wireless-N
-  - Host PC (LAN): Ethernet connected to same router
-
-### Build Settings
- - -Os optimisation (size)
- - Debug symbols stripped
- - linker set to `--gc-sections`
- - Full assertions (default)
- - LTO off (default)
-
-## Firmware build environment
-
-Both projects share hardware, toolchain, and every ESP-IDF knob that meaningfully affects code size. The only application-level differences are the transmit component (proton_core vs. micro_ros_espidf_component) and its associated task stack.
-
-### Toolchain / target
+## Toolchain / target
 
 | | |
 |---|---|
@@ -38,7 +9,7 @@ Both projects share hardware, toolchain, and every ESP-IDF knob that meaningfull
 | ESP-IDF | v6.0.2 (`71f4b17`) |
 | Toolchain | `riscv32-esp-elf-gcc` (bundled with IDF v6.0) |
 
-### Flash / partition
+## Flash / partition
 
 | | |
 |---|---|
@@ -47,7 +18,7 @@ Both projects share hardware, toolchain, and every ESP-IDF knob that meaningfull
 | App partition | 1 MB `factory` slot |
 | Bootloader | Default 2nd-stage, log level INFO |
 
-### RTOS / logging
+## RTOS / logging
 
 | | |
 |---|---|
@@ -57,7 +28,7 @@ Both projects share hardware, toolchain, and every ESP-IDF knob that meaningfull
 | Panic behavior | Print + reboot (default) |
 | Task WDT | Enabled, 5 s (default) |
 
-### Wi-Fi
+## Wi-Fi
 
 | | |
 |---|---|
@@ -67,7 +38,7 @@ Both projects share hardware, toolchain, and every ESP-IDF knob that meaningfull
 | Bring-up | `components/bench_common/wifi_sta.c` — shared between both projects; supports optional static IP (`/24`, no gateway) |
 | Static IP path | proton passes its generated MCU endpoint; micro_ros passes `NULL` (DHCP) |
 
-### Transmit-side components
+## Transmit-side components
 
 | | proton | micro-ROS | Notes | 
 |---|---|---|---|
@@ -88,7 +59,6 @@ Both projects share hardware, toolchain, and every ESP-IDF knob that meaningfull
 | App-partition image (.bin) |944,992 B | 836,416 B | −108,576 B (−11.5%) |
 | Free in 1 MB factory partition |10% | 20% | +10 pp |
 | Application-stack code (own libs) | 107,818 B | 6,156 B | −101,662 B (~17.5× smaller) |
-
 
 ### Application-stack contribution
 
@@ -121,3 +91,32 @@ micro-ROS has many more features than proton, it's a full rcl implementation for
 Latency in an embedded system is defined more by overall architecture than it is by which communication protocol you use. Just because one protocol has DDS under the hood, and the other has nothing, doesn't mean that one is more "real-time" than the other. Latency requirements are a conversation at the system level, not necessarily "make this go as fast as possible."
 
 Additionally, I'm testing over a very old, low-performance router that was just lying around, and wifi has enough latency jitter going on that doing benchmarks is going to be counter-productive. For a more informative test, ethernet should be used to reduce the amount of variables, but I figured that an ESP32 over wifi is a more user-accessible board than a devkit with ethernet.
+
+# Bandwidth Comparison
+
+This test recorded one-sided communication of the IMU message for each protocol. The idea was to determine the amount of data required to essentially transmit the same data. Not identical payloads, but what that data represents: a basic IMU message.
+
+The test recorded 30s of data using Wireshark, started and stopped while data is transmitting in steady-state
+
+## Bits/s
+
+## micro-ROS
+
+![micro-ROS bits per second](collected_data/captures/images/micro_ros_imu.png)
+
+## proton
+![proton bits per second](collected_data/captures/images/proton_imu.png)
+
+Based on exported data, micro-ROS uses an average of 363166 bits/s, vs proton's 143305 bits/s. proton uses approx 39.4% of the same raw bandwidth to send the same data.
+
+This is largely chalked up to the fact that proton only sends as much data as it needs to. micro-ROS uses the ROS standard serialization (effectively none) and ends up transmitting the entire sensor_msgs/msg/Imu message, which is 340 bytes long. That includes three 9-element covariances, and the unused 4-element orientation message.
+
+proton inherits protobuf's varint encoding, meaning that data is compressed slightly, and only sends the gyro, accel, and a single value for their covariances, which can be used as a coefficient for the covariance matrix in the ROS bridging layer.
+
+## EtherNet/IP
+
+![ethernet-ip bits per second](collected_data/captures/images/ethernet_ip_imu.png)
+
+EtherNet/IP is an industrial communications protocol based on the ODVA CIP protocol, commonly used in Rockwell Automation devices. In this case, the data has been captured from a real IMU from a Rockwell Automation device. The communication path used in this example is "Connected" using an Assembly object composed of IMU data and timestamps set to the same data types used in the other examples (`double`'s for scalars, `int64_t`'s for timestamps). EtherNet/IP ends up using less data on the wire than proton, largely because protobuf encodes tag-length-value data into compressed double types, whereas EtherNet/IP does not use any serialization at all. If all participants know that the data will appear this way, then decoding is fast an efficient. But this can be brittle in actual implementation if the communication schema ever ends up changing.
+
+An additional note: EtherNet/IP requires additional sockets to initiate connected messaging. One TCP socket to register a device on the EtherNet/IP network, and an additional TCP transaction to initiate connected messaging matching various descriptors. This is a pretty common EIP usecase, especially for high-speed sensors and actuators.

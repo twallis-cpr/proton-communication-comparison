@@ -20,6 +20,7 @@ The goal is to measure the following metrics of each library:
 - `micro_ros/`: ESP-IDF project that transmits via the micro-ROS `micro_ros_espidf_component` (git submodule, `rolling` branch).
 - `proton/`: ESP-IDF project that transmits via the proton protocol (git submodule, `2.0.0-beta6` tag)
 - `zenoh/`: ESP-IDF project that transmits via the zenoh protocol using zenoh-pico (git submodule, `main` branch)
+- `collected_data`: network captures and output of `idf.py size-components`
 
 ## Prerequisites
 
@@ -67,7 +68,14 @@ idf.py flash
 
 ### Build Settings
 
-Each project uses size-based optimization (`-Os`) across the whole project. Per-library settings are changed in order to get the project running on the ESP32. Additionally, per-library defines or settings are left as defaults where they can be, or as the default value in examples that closest match the project's intentions. IE, using the settings from micro-ROS' `int32_publisher` example, and zenoh-pico's `z_put` example.
+**General Settings**
+ - -Os optimisation (size)
+ - Debug symbols stripped
+ - linker set to `--gc-sections`
+ - Full assertions (default)
+ - LTO off (default)
+
+Per-library settings are changed in order to get the project running on the ESP32. Additionally, per-library defines or settings are left as defaults where they can be, or as the default value in examples that closest match the project's intentions. IE, using the settings from micro-ROS' `int32_publisher` example, and zenoh-pico's `z_put` example.
 
 ## micro-ROS
 
