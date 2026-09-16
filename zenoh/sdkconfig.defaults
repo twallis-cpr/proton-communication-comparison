@@ -8,5 +8,9 @@ CONFIG_LOG_DEFAULT_LEVEL_INFO=y
 
 CONFIG_ESP_WIFI_ENABLE_WPA3_SAE=y
 
+# zenoh-pico's tcp_lwip.c unconditionally calls setsockopt(SO_LINGER); ESP-IDF's
+# lwip has it off by default, so the socket open fails and z_open returns -102.
+CONFIG_LWIP_SO_LINGER=y
+
 CONFIG_ZENOH_TASK_STACK=16384
 CONFIG_ZENOH_TASK_PRIO=5

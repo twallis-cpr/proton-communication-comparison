@@ -6,6 +6,7 @@
 #include "esp_log.h"
 #include "esp_netif.h"
 #include "esp_timer.h"
+#include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -59,6 +60,9 @@ void zenoh_task(void *args)
 
     wait_for_sta_ip();
 
+    // Disable Wi-Fi power save so the router's InitAck isn't delayed by a doze window.
+    esp_wifi_set_ps(WIFI_PS_NONE);
+
     char locator[64];
     snprintf(locator, sizeof(locator), "tcp/%s:%d",
              CONFIG_BENCH_TARGET_IPV4, CONFIG_BENCH_TARGET_PORT);
@@ -70,13 +74,22 @@ void zenoh_task(void *args)
     zp_config_insert(z_loan_mut(config), Z_CONFIG_CONNECT_KEY, locator);
 
     z_owned_session_t session;
-	z_result_t ret = z_open(&session, z_move(config), NULL);
+    z_result_t ret = z_open(&session, z_move(config), NULL);
     if (ret < 0) {
         ESP_LOGE(TAG, "z_open failed: %d", ret);
         vTaskDelete(NULL);
         return;
     }
     ESP_LOGI(TAG, "Zenoh session open");
+
+    // Without these the router kills the session after Z_TRANSPORT_LEASE (10s).
+    if (zp_start_read_task(z_loan_mut(session), NULL) < 0 ||
+        zp_start_lease_task(z_loan_mut(session), NULL) < 0) {
+        ESP_LOGE(TAG, "Failed to start zenoh read/lease tasks");
+        z_drop(z_move(session));
+        vTaskDelete(NULL);
+        return;
+    }
 
     z_view_keyexpr_t ke;
     z_view_keyexpr_from_str_unchecked(&ke, ZENOH_KEYEXPR);
@@ -118,7 +131,7 @@ void zenoh_task(void *args)
                                   sizeof(sample)) < 0) {
             ESP_LOGW(TAG, "z_bytes_copy_from_buf failed");
         } else {
-            ESP_LOGI(TAG, "Publishing %" PRIu64, seq);
+            // ESP_LOGI(TAG, "Publishing %" PRIu64, seq);
             if (z_publisher_put(z_loan(pub), z_move(payload), NULL) < 0) {
                 ESP_LOGW(TAG, "z_publisher_put failed");
             }

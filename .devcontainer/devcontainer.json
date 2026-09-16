@@ -8,7 +8,9 @@
     // Devices are host-Linux specific. Comment out any that aren't plugged in
     // when the container starts, otherwise container start will fail.
     "runArgs": [
-        "--device=/dev/ttyUSB0"
+        // "--device=/dev/ttyUSB0",
+        // "--device=/dev/ttyACM0",
+        // "--device=/dev/ttyACM1"
     ],
 
     "containerEnv": {
