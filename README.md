@@ -161,7 +161,7 @@ Then create a workspace
 mkdir -p /path/to/proton_ws/src
 cd proton_ws/src
 git clone https://github.com/clearpathrobotics/proton_ros2.git
-git clone --branch feature/proton-2.0.0-beta https://github.com/clearpathrobotics/proton_vendor.git
+git clone https://github.com/clearpathrobotics/proton_vendor.git
 cd /path/to/proton_ws
 colcon build
 . install/local_setup.bash
@@ -185,7 +185,29 @@ ros2 launch proton_ros2_node proton_ros2_node.launch.py proton_config_file:=/pat
 
 ## zenoh-pico
 
-TBD
+This one has a lot of steps. It requires both an additional zenoh router to be running on the host, as well as a zenoh process doing the subscribing. We're using zenoh-pico 1.10.0, so we're going to set up our router and subscriber to the same version.
+
+In one terminal, run the zenoh router (in a docker container)
+
+```sh
+docker run --init --net host eclipse/zenoh:1.10.0 -l tcp/0.0.0.0:7447
+```
+
+In a separate folder, clone zenoh v1.10.0 and run the z_sub example subscribing to any keys from this esp32
+
+```sh
+git clone --branch 1.10.0 https://github.com/eclipse-zenoh/zenoh.git
+cd zenoh
+cargo run --example z_sub -- -k esp32/**
+```
+
+### Some troubleshooting guides
+
+I found that if the host PC has more than one interface connected to the same LAN as the ESP32, such as wifi and ethernet, the router can send traffic out of a different interface than the ESP32 expects. Meaning that traffic can be received in one address, and out the other address.
+
+Additionally, there is a patch that must be applied to the zenoh-pico submodule before building. It's regarding ESP-IDF's port of FreeRTOS not playing well with zenoh's usage of FreeRTOS. I will fully admit that I had an AI generate that patch, but it works. The patch is applied automatically during the build step (also, AI generated).
+
+If you continue to have issues, the Zenoh folks at Zettascale are very friendly :)
 
 ## Component size comparison
 

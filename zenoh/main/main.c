@@ -24,21 +24,6 @@ static char *TAG = "esp32_zenoh_bench";
 
 QueueHandle_t imu_queue = NULL;
 
-// Wire-format IMU sample sent as the zenoh publisher payload. Packed so its
-// size matches the on-wire layout across compilers.
-typedef struct __attribute__((packed)) {
-    int64_t stamp_sec;
-    int64_t stamp_nsec;
-    double  angular_vel_x;
-    double  angular_vel_y;
-    double  angular_vel_z;
-    double  ang_vel_covar;
-    double  linear_accel_x;
-    double  linear_accel_y;
-    double  linear_accel_z;
-    double  linear_accel_covar;
-} bench_imu_payload_t;
-
 static void wait_for_sta_ip(void)
 {
     esp_netif_t *sta_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
@@ -106,38 +91,38 @@ void zenoh_task(void *args)
     const TickType_t period = pdMS_TO_TICKS(ZENOH_TASK_PERIOD_MS);
     TickType_t last_wake = xTaskGetTickCount();
 
-    bench_imu_payload_t sample = { 0 };
-    uint64_t seq = 0;
+    char z_buffer[256];
 
     for (;;) {
+        memset(z_buffer, '\0', 256);
         ImuData_t imu_data;
+
         if (xQueueReceive(imu_queue, &imu_data, 0) == pdPASS) {
-            sample.angular_vel_x      = imu_data.angular_vel_x;
-            sample.angular_vel_y      = imu_data.angular_vel_y;
-            sample.angular_vel_z      = imu_data.angular_vel_z;
-            sample.ang_vel_covar      = imu_data.ang_vel_covar;
-            sample.linear_accel_x     = imu_data.linear_accel_x;
-            sample.linear_accel_y     = imu_data.linear_accel_y;
-            sample.linear_accel_z     = imu_data.linear_accel_z;
-            sample.linear_accel_covar = imu_data.linear_accel_covar;
-        }
+            int64_t uptime_us = esp_timer_get_time();
 
-        int64_t uptime_us = esp_timer_get_time();
-        sample.stamp_sec  = uptime_us / 1000000LL;
-        sample.stamp_nsec = (uptime_us % 1000000LL) * 1000LL;
+            snprintf(z_buffer, 256, "%lld,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f,%.6f",
+                uptime_us,
+                imu_data.ang_vel_covar,
+                imu_data.linear_accel_covar,
+                imu_data.angular_vel_x,
+                imu_data.angular_vel_y,
+                imu_data.angular_vel_z,
+                imu_data.linear_accel_x,
+                imu_data.linear_accel_y,
+                imu_data.linear_accel_z
+            );
 
-        z_owned_bytes_t payload;
-        if (z_bytes_copy_from_buf(&payload, (const uint8_t *)&sample,
-                                  sizeof(sample)) < 0) {
-            ESP_LOGW(TAG, "z_bytes_copy_from_buf failed");
-        } else {
-            // ESP_LOGI(TAG, "Publishing %" PRIu64, seq);
-            if (z_publisher_put(z_loan(pub), z_move(payload), NULL) < 0) {
-                ESP_LOGW(TAG, "z_publisher_put failed");
+            z_owned_bytes_t payload;
+            if (z_bytes_copy_from_buf(&payload, (const uint8_t *)z_buffer,
+                                    strlen(z_buffer) + 1) < 0) {
+                ESP_LOGW(TAG, "z_bytes_copy_from_buf failed");
+            } else {
+                // ESP_LOGI(TAG, "Publishing %" PRIu64, seq);
+                if (z_publisher_put(z_loan(pub), z_move(payload), NULL) < 0) {
+                    ESP_LOGW(TAG, "z_publisher_put failed");
+                }
             }
         }
-        seq++;
-
         vTaskDelayUntil(&last_wake, period);
     }
 

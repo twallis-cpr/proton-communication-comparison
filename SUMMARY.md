@@ -125,6 +125,25 @@ proton inherits protobuf's varint encoding, meaning that data is compressed slig
 
 ## zenoh-pico
 
+![zenoh-pico bits per second](collected_data/captures/images/zenoh_imu.png)
+
+This one can be taken with a grain of salt. Zenoh itself is more of a framework for how data is shared between peers, rather than about how data itself is encoded. This is why it is suitable for usage as a ROS 2 middleware. Because it is serialization-independent. For the sake of this test, I opted to format the data such that it could be printed from the `z_sub` example in zenoh's main Rust repo. It can be more efficient in bits/s depending on how you format the data. If you pack the bytes right next to each other and they're all a fixed size, or apply some form of compression, then Zenoh can be quite efficient.
+
+However, this comes with an interesting tradeoff. Zenoh is TCP by default, with a fair amount of handshaking and keep-aliving in the process. Have a look at the number of packets per second this capture used.
+
+![zenoh-pico packets per second](collected_data/captures/images/zenoh_imu_packets.png)
+
+Compared to UDP traffic from Proton and Micro-ROS
+
+![proton packets per second](collected_data/captures/images/proton_imu-packets.png)
+
+![micro-ros packets per second](collected_data/captures/images/micro_ros_imu-packets.png)
+
+Proton still comes out on top, but Micro-ROS! How many packets must you send?! I was very surprised at this result to say the least. The vast majority of those packets are tiny, only 13 bytes, but they add up fast.
+
+Another interesting thing is that Zenoh created some rather spiky traffic. After being stable for a while. I leave it to be an exercise to the reader on why it suddenly started transmitting more data like this, because it happens just about every time I run this example.
+
+
 ## EtherNet/IP
 
 ![ethernet-ip bits per second](collected_data/captures/images/ethernet_ip_imu.png)
